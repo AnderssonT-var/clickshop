@@ -1582,6 +1582,13 @@ async function start() {
     });
     persistCart();
     renderStore();
+    // Links such as index.php#colecciones arrive before the page exists: scroll once it does.
+    if (window.location.hash && !isTrackingView()) {
+      try {
+        const target = document.querySelector(window.location.hash);
+        if (target) window.requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+      } catch { /* not a valid selector */ }
+    }
     const linkedProduct = productFromParam();
     if (linkedProduct && !isTrackingView()) openProduct(Number(linkedProduct.id));
     if (isTrackingView()) {
