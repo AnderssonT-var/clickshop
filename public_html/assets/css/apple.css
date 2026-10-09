@@ -452,3 +452,5 @@ main section[id], #soporte { scroll-margin-top: 84px; }
 }
 #store-app .collection-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 #store-app .collection-card .collection-image { aspect-ratio: 16 / 10; height: auto; min-height: 0; }
+.promo-progress p { display: flex; align-items: center; gap: 6px; }
+.sheet-collections__img--all .icon, .collection-image--all .icon { width: 34px; height: 34px; }

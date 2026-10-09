@@ -13,7 +13,7 @@ declare(strict_types=1);
   <link rel="stylesheet" href="assets/css/storefront-reference.css?v=10">
   <link rel="stylesheet" href="assets/css/tracking.css?v=2">
   <link rel="stylesheet" href="assets/css/store-upgrade.css?v=4">
-  <link rel="stylesheet" href="assets/css/apple.css?v=1">
+  <link rel="stylesheet" href="assets/css/apple.css?v=2">
 </head>
 <body data-store-view="tracking">
   <a class="skip-link" href="#main">Saltar al contenido</a>
