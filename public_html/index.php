@@ -23,6 +23,6 @@ $pageMeta = lumina_page_meta('home', ['title' => 'Click S&E', 'description' => '
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
   <noscript><p class="noscript">Activa JavaScript para ver el catálogo y realizar pedidos.</p></noscript>
-  <script type="module" src="assets/js/store.js?v=16"></script>
+  <script type="module" src="assets/js/store.js?v=17"></script>
 </body>
 </html>
