@@ -207,11 +207,30 @@ function lumina_public_payload(PDO $pdo): array
 
     $trustCards = $pdo->query("SELECT id, icon_key, theme, title, body, cta_label, cta_target, sort_order FROM trust_cards WHERE status = 'active' ORDER BY sort_order ASC, id ASC")->fetchAll();
     $reviews = [];
-    $reviewSummary = ['average' => 0, 'count' => 0];
+    $reviewSummary = ['average' => 0, 'count' => 0, 'store' => 0, 'products' => 0, 'distribution' => ['5' => 0, '4' => 0, '3' => 0, '2' => 0, '1' => 0]];
     if ($settings['reviews_enabled']) {
-        $reviews = $pdo->query("SELECT id, author_name, rating, title, body, is_featured, published_at FROM reviews WHERE product_id IS NULL AND status = 'approved' ORDER BY is_featured DESC, published_at DESC LIMIT 9")->fetchAll();
-        $summary = $pdo->query("SELECT COALESCE(ROUND(AVG(rating), 1), 0) AS average, COUNT(*) AS count FROM reviews WHERE product_id IS NULL AND status = 'approved'")->fetch();
-        $reviewSummary = ['average' => (float) $summary['average'], 'count' => (int) $summary['count']];
+        // Every approved review is public: general store reviews and product reviews alike.
+        $reviews = $pdo->query(
+            "SELECT r.id, r.product_id, r.author_name, r.rating, r.title, r.body, r.is_featured, r.published_at,
+                    p.name AS product_name, p.slug AS product_slug
+             FROM reviews r LEFT JOIN products p ON p.id = r.product_id AND p.status = 'active'
+             WHERE r.status = 'approved'
+             ORDER BY r.is_featured DESC, r.published_at DESC, r.id DESC LIMIT 60"
+        )->fetchAll();
+        foreach ($reviews as &$review) {
+            $review['rating'] = (int) $review['rating'];
+            $review['product_id'] = $review['product_name'] === null ? null : (int) $review['product_id'];
+        }
+        unset($review);
+        $summary = $pdo->query("SELECT COALESCE(ROUND(AVG(rating), 1), 0) AS average, COUNT(*) AS count, COALESCE(SUM(CASE WHEN product_id IS NULL THEN 1 ELSE 0 END), 0) AS store_count FROM reviews WHERE status = 'approved'")->fetch();
+        $reviewSummary['average'] = (float) $summary['average'];
+        $reviewSummary['count'] = (int) $summary['count'];
+        $reviewSummary['store'] = (int) $summary['store_count'];
+        $reviewSummary['products'] = $reviewSummary['count'] - $reviewSummary['store'];
+        foreach ($pdo->query("SELECT rating, COUNT(*) AS total FROM reviews WHERE status = 'approved' GROUP BY rating")->fetchAll() as $row) {
+            $key = (string) max(1, min(5, (int) $row['rating']));
+            $reviewSummary['distribution'][$key] += (int) $row['total'];
+        }
     }
     return compact('settings', 'categories', 'banners', 'campaigns', 'notices', 'trustCards', 'reviews', 'reviewSummary') + ['products' => lumina_public_products($pdo)];
 }

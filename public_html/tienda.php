@@ -13,6 +13,7 @@ $pageMeta = lumina_page_meta('catalog', ['title' => 'Tienda', 'description' => '
   <link rel="stylesheet" href="assets/css/demo-polish.css?v=2">
   <link rel="stylesheet" href="assets/css/storefront-reference.css?v=10">
   <link rel="stylesheet" href="assets/css/store-upgrade.css?v=4">
+  <link rel="stylesheet" href="assets/css/apple.css?v=1">
 </head>
 <body data-store-view="catalog">
   <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -22,6 +23,6 @@ $pageMeta = lumina_page_meta('catalog', ['title' => 'Tienda', 'description' => '
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
   <noscript><p class="noscript">Activa JavaScript para ver el catálogo y realizar pedidos.</p></noscript>
-  <script type="module" src="assets/js/store.js?v=15"></script>
+  <script type="module" src="assets/js/store.js?v=16"></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ declare(strict_types=1);
   <link rel="stylesheet" href="assets/css/storefront-reference.css?v=10">
   <link rel="stylesheet" href="assets/css/tracking.css?v=2">
   <link rel="stylesheet" href="assets/css/store-upgrade.css?v=4">
+  <link rel="stylesheet" href="assets/css/apple.css?v=1">
 </head>
 <body data-store-view="tracking">
   <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -22,6 +23,6 @@ declare(strict_types=1);
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
   <noscript><p class="noscript">Activa JavaScript para consultar el estado de tu pedido.</p></noscript>
-  <script type="module" src="assets/js/store.js?v=15"></script>
+  <script type="module" src="assets/js/store.js?v=16"></script>
 </body>
 </html>
