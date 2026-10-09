@@ -13,7 +13,7 @@ $pageMeta = lumina_page_meta('home', ['title' => 'Click S&E', 'description' => '
   <link rel="stylesheet" href="assets/css/demo-polish.css?v=2">
   <link rel="stylesheet" href="assets/css/storefront-reference.css?v=10">
   <link rel="stylesheet" href="assets/css/store-upgrade.css?v=4">
-  <link rel="stylesheet" href="assets/css/apple.css?v=2">
+  <link rel="stylesheet" href="assets/css/apple.css?v=3">
 </head>
 <body data-store-view="home">
   <a class="skip-link" href="#main">Saltar al contenido</a>

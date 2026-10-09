@@ -454,3 +454,114 @@ main section[id], #soporte { scroll-margin-top: 84px; }
 #store-app .collection-card .collection-image { aspect-ratio: 16 / 10; height: auto; min-height: 0; }
 .promo-progress p { display: flex; align-items: center; gap: 6px; }
 .sheet-collections__img--all .icon, .collection-image--all .icon { width: 34px; height: 34px; }
+
+/* ==========================================================================
+   Aurora glass hero — translucent gradient instead of a solid box
+   ========================================================================== */
+#store-app .hero-wrap { position: relative; isolation: isolate; padding-top: 10px; }
+#store-app .hero-wrap::before {
+  position: absolute;
+  inset: -40px -6% -60px;
+  z-index: -1;
+  background:
+    radial-gradient(38% 55% at 18% 35%, rgba(120, 160, 255, .38), transparent 70%),
+    radial-gradient(34% 50% at 82% 60%, rgba(190, 140, 255, .34), transparent 70%),
+    radial-gradient(30% 40% at 60% 95%, rgba(110, 225, 230, .26), transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  content: "";
+}
+#store-app .hero,
+#store-app .hero.theme-dark,
+#store-app .hero.theme-light,
+#store-app .hero.theme-warm {
+  color: #1d1d1f;
+  border: 1px solid rgba(255, 255, 255, .75);
+  border-radius: 34px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .72) 0%, rgba(255, 255, 255, .38) 48%, rgba(255, 255, 255, .18) 100%),
+    radial-gradient(60% 80% at 100% 0%, rgba(110, 150, 255, .30), transparent 70%),
+    radial-gradient(50% 70% at 0% 100%, rgba(186, 140, 255, .26), transparent 70%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 30px 80px -30px rgba(60, 70, 140, .28);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+}
+#store-app .hero .hero-aurora {
+  opacity: .85;
+  background:
+    radial-gradient(40% 50% at 18% 28%, rgba(10, 132, 255, .30), transparent 70%),
+    radial-gradient(35% 45% at 82% 72%, rgba(175, 82, 222, .26), transparent 70%),
+    radial-gradient(30% 40% at 62% 18%, rgba(90, 200, 250, .26), transparent 70%),
+    radial-gradient(28% 36% at 30% 92%, rgba(255, 140, 200, .18), transparent 70%);
+  filter: blur(36px);
+}
+#store-app .hero .hero-copy h1 { color: #1d1d1f; }
+#store-app .hero .hero-copy .hero-word:last-child {
+  background: linear-gradient(100deg, #0a6cff 0%, #7a4dff 55%, #c04de0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: .06em;
+}
+#store-app .hero .hero-copy .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, .8);
+  border-radius: 999px;
+  color: #0a5fd8;
+  background: rgba(255, 255, 255, .55);
+  box-shadow: 0 4px 14px rgba(40, 60, 140, .08);
+  font-size: 12px;
+}
+#store-app .hero .hero-copy .eyebrow::before { width: 7px; height: 7px; border-radius: 50%; background: #0a84ff; box-shadow: 0 0 0 4px rgba(10, 132, 255, .15); content: ""; }
+#store-app .hero .hero-copy > p:not(.eyebrow) { color: #424245; }
+#store-app .hero .hero-actions .button-quiet {
+  border: 1px solid rgba(255, 255, 255, .9);
+  color: #1d1d1f;
+  background: rgba(255, 255, 255, .6);
+  box-shadow: 0 6px 18px rgba(40, 60, 140, .1);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+#store-app .hero .hero-actions .button-quiet:hover { background: rgba(255, 255, 255, .85); }
+#store-app .hero .hero-actions .button-primary { box-shadow: 0 10px 24px -8px rgba(10, 113, 227, .55); }
+
+/* Banner image floats on the glass with soft, dissolving edges */
+#store-app .hero .hero-visual::after,
+#store-app .hero .hero-orb { display: none; }
+#store-app .hero .hero-visual--image .hero-image-frame { padding: 18px 18px 18px 0; background: none; box-shadow: none; }
+#store-app .hero .hero-visual--image .hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 30px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 20%, #000 80%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 20%, #000 80%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0, #000 20%, #000 80%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 20%, #000 80%, transparent 100%);
+  mask-composite: intersect;
+  filter: drop-shadow(0 30px 40px rgba(60, 50, 140, .18));
+}
+
+/* Showcase slide on glass */
+#store-app .hero .hero-card { box-shadow: 0 24px 50px -18px rgba(50, 60, 140, .35); }
+#store-app .hero .hero-chip {
+  border-color: rgba(255, 255, 255, .9);
+  color: #1d1d1f;
+  background: rgba(255, 255, 255, .7);
+  box-shadow: 0 10px 25px rgba(40, 60, 140, .14);
+}
+#store-app .hero .hero-chip .icon { color: #0a84ff; }
+#store-app .hero .hero-chip--two .icon { color: #1fb956; }
+
+/* Progress pills on light glass */
+#store-app .hero-dot { background: rgba(29, 29, 31, .16); }
+#store-app .hero-dot.active { background: rgba(29, 29, 31, .12); }
+#store-app .hero-dot.active span { background: linear-gradient(90deg, #0a84ff, #7a4dff); }
+
+@media (max-width: 900px) {
+  #store-app .hero, #store-app .hero.theme-dark { border-radius: 28px; }
+  #store-app .hero .hero-visual--image .hero-image-frame { padding: 0 14px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { #store-app .hero-wrap::before { filter: blur(30px); } }
