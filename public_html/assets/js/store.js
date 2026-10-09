@@ -324,6 +324,9 @@ function icon(name, size = 20) {
     tiktok: '<path d="M14.5 4c.25 2.38 1.7 3.9 4 4.2v3c-1.46-.08-2.82-.57-4-1.46v5.42a5.15 5.15 0 1 1-4.48-5.1v3.06a2.16 2.16 0 1 0 1.48 2.05V4h3Z" fill="currentColor" stroke="none"/>',
     x: '<path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.5l11.2 14.5Z" fill="currentColor" stroke="none"/>',
     youtube: '<rect x="3.4" y="6.4" width="17.2" height="11.2" rx="3.1"/><path d="m10.2 9.45 4.5 2.55-4.5 2.55V9.45Z" fill="currentColor" stroke="none"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/>',
+    phone: '<path d="M6.6 3.5h2.6l1.3 4.2-1.8 1.4a12 12 0 0 0 6.2 6.2l1.4-1.8 4.2 1.3v2.6a2.2 2.2 0 0 1-2.4 2.2A16.8 16.8 0 0 1 4.4 5.9 2.2 2.2 0 0 1 6.6 3.5Z"/>',
+    send: '<path d="M4 12 20 4l-6 16-3-7-7-1Z"/><path d="m11 13 9-9"/>',
   };
   return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.check}</svg>`;
 }
@@ -578,14 +581,61 @@ function renderFeatured() {
   return `<section id="destacados" class="section featured-section"><div class="container"><div class="section-heading"><div><p class="eyebrow">Destacados</p><h2>Productos destacados.</h2></div><a class="text-link" href="${storeHref()}">Ver todo ${icon('arrow', 16)}</a></div><div class="product-grid featured-grid">${products.map(renderProductCard).join('')}</div>${total > products.length ? `<div class="featured-more"><a class="button button-dark" href="${storeHref()}">Ver los ${total} productos ${icon('arrow', 17)}</a></div>` : ''}</div></section>`;
 }
 
+const WA_TOPICS = ['Quiero hacer un pedido', 'Consultar un producto', 'Estado de mi envío', 'Precios y promociones'];
+
 function renderWhatsappFab(settings) {
   const href = whatsappHref(`Hola ${settings.store_name || ''}, quiero hacer una consulta.`);
   if (!href) return '';
-  return `<a class="whatsapp-fab" href="${escapeAttribute(href)}" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">${icon('whatsapp', 24)}<span>¿Dudas? Escríbenos</span></a>`;
+  const name = escapeHtml(settings.store_name || 'Tienda');
+  const avatar = settings.logo_url ? `<img src="${escapeAttribute(settings.logo_url)}" alt="">` : `<span>${escapeHtml(String(settings.store_name || 'T').trim().charAt(0).toUpperCase())}</span>`;
+  return `<div class="wa-widget" data-wa-widget>
+    <section class="wa-panel" id="wa-panel" role="dialog" aria-modal="false" aria-label="Chat de WhatsApp" hidden>
+      <header class="wa-panel__head"><span class="wa-panel__avatar">${avatar}<i aria-hidden="true"></i></span><div><strong>${name}</strong><small>En línea · respondemos en minutos</small></div><button type="button" class="wa-panel__close" data-action="wa-close" aria-label="Cerrar chat">${icon('close', 18)}</button></header>
+      <div class="wa-panel__body">
+        <div class="wa-bubble"><p>¡Hola! Bienvenido a <b>${name}</b>.</p><p>¿En qué podemos ayudarte hoy?</p><time>${new Intl.DateTimeFormat('es-EC', { hour: '2-digit', minute: '2-digit' }).format(new Date())}</time></div>
+        <div class="wa-topics" aria-label="Temas rápidos">${WA_TOPICS.map((topic) => `<button type="button" class="wa-topic" data-action="wa-topic" data-topic="${escapeAttribute(topic)}">${escapeHtml(topic)}</button>`).join('')}</div>
+      </div>
+      <form class="wa-panel__form" id="wa-form" autocomplete="on">
+        <input name="name" type="text" maxlength="60" placeholder="Tu nombre (opcional)" autocomplete="given-name">
+        <div class="wa-compose"><textarea name="message" rows="2" maxlength="600" placeholder="Escribe tu mensaje…" required></textarea><button type="submit" class="wa-send" aria-label="Enviar por WhatsApp">${icon('send', 20)}</button></div>
+        <p class="wa-note">${icon('whatsapp', 14)} Se abrirá WhatsApp con tu mensaje listo para enviar.</p>
+      </form>
+    </section>
+    <button type="button" class="whatsapp-fab" data-action="wa-toggle" aria-expanded="false" aria-controls="wa-panel" aria-label="Abrir chat de WhatsApp">${icon('whatsapp', 24)}<span>¿Dudas? Escríbenos</span></button>
+  </div>`;
+}
+
+function setWaChat(open) {
+  const widget = document.querySelector('[data-wa-widget]');
+  if (!widget) return;
+  const panel = widget.querySelector('.wa-panel');
+  const toggle = widget.querySelector('.whatsapp-fab');
+  if (open) { closeMenu(); panel.hidden = false; requestAnimationFrame(() => widget.classList.add('is-open')); }
+  else { widget.classList.remove('is-open'); window.setTimeout(() => { if (!widget.classList.contains('is-open')) panel.hidden = true; }, 260); }
+  toggle.setAttribute('aria-expanded', String(open));
+  if (open) window.setTimeout(() => widget.querySelector('textarea')?.focus({ preventScroll: true }), 280);
+}
+
+function sendWaChat(form) {
+  const data = new FormData(form);
+  const message = String(data.get('message') || '').trim();
+  if (!message) return form.querySelector('textarea')?.focus();
+  const who = String(data.get('name') || '').trim();
+  const text = `${who ? `Hola, soy ${who}. ` : 'Hola. '}${message}`;
+  const href = whatsappHref(text);
+  if (href) window.open(href, '_blank', 'noopener');
+  form.reset();
+  setWaChat(false);
+}
+
+function catalogCollage() {
+  const picks = (state.data?.products || []).filter((product) => product.image_url).slice(0, 3);
+  if (!picks.length) return icon('box', 44);
+  return `<span class="catalog-collage">${picks.map((product, index) => `<span class="catalog-collage__item" style="--i:${index}"><img src="${escapeAttribute(product.image_url)}" alt="" loading="lazy"></span>`).join('')}</span>`;
 }
 
 function renderCollections(categories) {
-  return `<section id="colecciones" class="section collections-section"><div class="container"><div class="section-heading"><div><p class="eyebrow">Explora por intención</p><h2>Elige tu categoría.</h2></div><a class="text-link" href="${storeHref()}">Ver todo ${icon('arrow', 16)}</a></div><div class="collection-grid">${categories.map((category) => `<button type="button" class="collection-card reveal" data-action="open-category" data-category="${escapeAttribute(category.slug)}"><div class="collection-image">${imageMarkup(category.image_url, category.name, 'collection-img')}</div><div><p>${escapeHtml(category.description || 'Productos elegidos para ti')}</p><h3>${escapeHtml(category.name)}</h3><span>Explorar ${icon('arrow', 15)}</span></div></button>`).join('')}<button type="button" class="collection-card collection-card--all reveal" data-action="open-category" data-category="all"><div class="collection-image collection-image--all">${icon('box', 44)}</div><div><p>${(state.data?.products || []).length} productos disponibles</p><h3>Todo el catálogo</h3><span>Ver la tienda ${icon('arrow', 15)}</span></div></button></div></div></section>`;
+  return `<section id="colecciones" class="section collections-section"><div class="container"><div class="section-heading"><div><p class="eyebrow">Explora por intención</p><h2>Elige tu categoría.</h2></div><a class="text-link" href="${storeHref()}">Ver todo ${icon('arrow', 16)}</a></div><div class="collection-grid">${categories.map((category) => `<button type="button" class="collection-card reveal" data-action="open-category" data-category="${escapeAttribute(category.slug)}"><div class="collection-image">${imageMarkup(category.image_url, category.name, 'collection-img')}</div><div><p>${escapeHtml(category.description || 'Productos elegidos para ti')}</p><h3>${escapeHtml(category.name)}</h3><span>Explorar ${icon('arrow', 15)}</span></div></button>`).join('')}<button type="button" class="collection-card collection-card--all reveal" data-action="open-category" data-category="all"><div class="collection-image collection-image--all">${catalogCollage()}</div><div><p>${(state.data?.products || []).length} productos disponibles</p><h3>Todo el catálogo</h3><span>Ver la tienda ${icon('arrow', 15)}</span></div></button></div></div></section>`;
 }
 
 const CAMPAIGN_LABELS = { promotion: 'Promoción', sale: 'Rebaja', campaign: 'Campaña', benefit: 'Beneficio' };
@@ -817,9 +867,35 @@ function socialFooterLinks(settings) {
   }).filter(Boolean).join('');
 }
 
+function prettyPhone(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('593')) return `+593 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+  return String(value || '');
+}
+
 function renderFooter(settings) {
   const socials = socialFooterLinks(settings);
-  return `<footer id="soporte" class="site-footer"><div class="container footer-main"><div><a class="brand brand-footer" href="${homeHref()}">${logoMarkup(settings, true)}<span>${escapeHtml(settings.store_name)}</span></a><p>${escapeHtml(settings.store_tagline || 'Una forma más simple de comprar.')}</p></div><div class="footer-navigation"><div class="footer-links"><a href="${storeHref()}">Tienda</a><a href="${trackingHref()}">Seguimiento</a><a href="${homeHref('#resenas')}">Opiniones</a>${settings.store_email ? `<a href="mailto:${escapeAttribute(settings.store_email)}">${escapeHtml(settings.store_email)}</a>` : ''}${settings.store_phone ? `<a href="tel:${escapeAttribute(settings.store_phone.replace(/[^+\d]/g, ''))}">${escapeHtml(settings.store_phone)}</a>` : ''}</div>${socials ? `<div class="footer-socials" aria-label="Redes sociales"><span>Síguenos</span><div>${socials}</div></div>` : ''}</div></div><div class="container footer-bottom"><span>© ${new Date().getFullYear()} ${escapeHtml(settings.store_name)}. Todos los derechos reservados.</span><span class="copyright-credit">Desarrollado por A.T.</span></div></footer>`;
+  const name = escapeHtml(settings.store_name);
+  const wa = whatsappHref(`Hola ${settings.store_name || ''}, quiero hacer una consulta.`);
+  const phone = settings.store_phone ? `<a href="tel:${escapeAttribute(String(settings.store_phone).replace(/[^+\d]/g, ''))}">${icon('phone', 16)}<span>${escapeHtml(prettyPhone(settings.store_phone))}</span></a>` : '';
+  const email = settings.store_email ? `<a href="mailto:${escapeAttribute(settings.store_email)}">${icon('mail', 16)}<span>${escapeHtml(settings.store_email)}</span></a>` : '';
+  return `<footer id="soporte" class="cs-footer">
+    <span class="cs-footer__aurora" aria-hidden="true"></span>
+    <div class="container">
+      <div class="cs-footer__cta reveal">
+        <div class="cs-footer__cta-copy"><p class="cs-footer__eyebrow">${icon('headset', 16)} Atención personalizada</p><h2>¿Tienes dudas? Te ayudamos a elegir.</h2><p>Escríbenos, confirmamos tu pedido y te enviamos la guía para que sigas tu envío en línea.</p></div>
+        <div class="cs-footer__cta-actions">${wa ? `<button type="button" class="button button-primary" data-action="wa-open">${icon('whatsapp', 18)} Escríbenos</button>` : ''}<a class="button cs-footer__ghost" href="${trackingHref()}">${icon('truck', 18)} Rastrear pedido</a></div>
+      </div>
+      <div class="cs-footer__grid">
+        <div class="cs-footer__brand"><a class="cs-footer__logo" href="${homeHref()}"><span class="cs-footer__mark">${logoMarkup(settings, true)}</span><span>${name}</span></a><p>${escapeHtml(settings.store_tagline || 'Una forma más simple de comprar.')}</p>${socials ? `<div class="cs-footer__socials" aria-label="Redes sociales">${socials}</div>` : ''}</div>
+        <nav class="cs-footer__col" aria-label="Comprar"><h3>Comprar</h3><a href="${storeHref()}">Tienda</a><a href="${homeHref('#colecciones')}">Categorías</a><a href="${homeHref('#destacados')}">Destacados</a><a href="${homeHref('#promociones')}">Promociones</a></nav>
+        <nav class="cs-footer__col" aria-label="Ayuda"><h3>Ayuda</h3><a href="${trackingHref()}">Rastrear pedido</a><a href="${homeHref('#resenas')}">Opiniones</a>${wa ? `<button type="button" data-action="wa-open">Chat por WhatsApp</button>` : ''}</nav>
+        <div class="cs-footer__col cs-footer__contact"><h3>Contacto</h3>${phone}${email}<span class="cs-footer__hours">${icon('clock', 16)}<span>Respondemos todos los días</span></span></div>
+      </div>
+      <div class="cs-footer__badges">${[['shield', 'Compra segura'], ['truck', 'Seguimiento en línea'], ['chat', 'Pedido por WhatsApp'], ['check', 'Productos verificados']].map(([ic, label]) => `<span>${icon(ic, 16)}${label}</span>`).join('')}</div>
+      <div class="cs-footer__bottom"><span>© ${new Date().getFullYear()} ${name}. Todos los derechos reservados.</span><span class="copyright-credit">Desarrollado por A.T.</span></div>
+    </div>
+  </footer>`;
 }
 
 function formatTrackingDate(value) {
@@ -1442,6 +1518,14 @@ function handleClick(event) {
   if (action === 'close-modal') return closeModal();
   if (action === 'toggle-menu') return toggleMenu();
   if (action === 'close-menu') return closeMenu();
+  if (action === 'wa-toggle') return setWaChat(!document.querySelector('[data-wa-widget]')?.classList.contains('is-open'));
+  if (action === 'wa-open') return setWaChat(true);
+  if (action === 'wa-close') return setWaChat(false);
+  if (action === 'wa-topic') {
+    const area = document.querySelector('#wa-form textarea');
+    if (area) { area.value = button.dataset.topic || ''; area.focus(); }
+    return;
+  }
   if (action === 'review-filter') {
     state.reviewFilter = button.dataset.filter || 'all';
     document.querySelectorAll('.review-tab').forEach((tab) => { const on = tab.dataset.filter === state.reviewFilter; tab.classList.toggle('is-active', on); tab.setAttribute('aria-pressed', String(on)); });
@@ -1536,6 +1620,7 @@ function handleChange(event) {
 function handleSubmit(event) {
   if (event.target.id === 'checkout-form') { event.preventDefault(); submitCheckout(event.target); }
   if (event.target.id === 'review-form') { event.preventDefault(); submitReview(event.target); }
+  if (event.target.id === 'wa-form') { event.preventDefault(); sendWaChat(event.target); }
   if (event.target.id === 'tracking-form') {
     event.preventDefault();
     lookupTrackingGuide(new FormData(event.target).get('guide'));
@@ -1553,6 +1638,7 @@ function bindEvents() {
   startHeroMotion();
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
+    if (document.querySelector('.wa-widget.is-open')) return setWaChat(false);
     if (document.querySelector('.mobile-sheet.is-open')) return closeMenu();
     if (modalRoot.innerHTML) closeModal();
   });
