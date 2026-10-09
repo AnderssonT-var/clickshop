@@ -126,7 +126,16 @@ function lumina_public_path(?string $relativePath): string
         return '';
     }
     $base = (string) lumina_config('url');
-    return ($base !== '' ? $base . '/' : '') . ltrim($relativePath, '/');
+    $relativePath = ltrim($relativePath, '/');
+    // Uploaded images carry their modification time so browsers fetch a replaced file right away.
+    if (str_starts_with($relativePath, 'uploads/') && !str_contains($relativePath, '?')) {
+        $file = dirname(__DIR__) . '/public_html/' . $relativePath;
+        $mtime = is_file($file) ? @filemtime($file) : false;
+        if ($mtime) {
+            $relativePath .= '?v=' . $mtime;
+        }
+    }
+    return ($base !== '' ? $base . '/' : '') . $relativePath;
 }
 
 function lumina_csrf_token(): string
