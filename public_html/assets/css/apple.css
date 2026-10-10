@@ -683,3 +683,6 @@ html, body { overflow-x: clip; }
 .wa-widget .whatsapp-fab { border: 0; font: inherit; font-weight: 600; cursor: pointer; }
 .has-demo-bar .wa-widget { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 62px); }
 .has-demo-bar .wa-widget .whatsapp-fab { bottom: auto; }
+/* Leave room under the footer so the floating WhatsApp button never covers the credit line */
+.cs-footer { padding-bottom: 104px; }
+@media (max-width: 480px) { .cs-footer { padding-bottom: 96px; } }
