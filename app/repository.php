@@ -1480,7 +1480,7 @@ function lumina_create_whatsapp_order(PDO $pdo, array $data): array
             'id' => $orderId,
             'reference' => $reference,
             'tracking_code' => $shipment['tracking_code'],
-            'tracking_url' => lumina_public_path('seguimiento.php?guia=' . rawurlencode((string) $shipment['tracking_code'])),
+            'tracking_url' => lumina_public_path('seguimiento?guia=' . rawurlencode((string) $shipment['tracking_code'])),
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'total' => $total,

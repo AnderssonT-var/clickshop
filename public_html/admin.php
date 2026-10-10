@@ -18,6 +18,6 @@ declare(strict_types=1);
   <div id="admin-app" class="app-shell"><div class="app-loading"><span class="loading-orb"></span><p>Preparando administración…</p></div></div>
   <div id="admin-modal-root"></div>
   <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="assets/js/admin.js?v=10"></script>
+  <script type="module" src="assets/js/admin.js?v=11"></script>
 </body>
 </html>

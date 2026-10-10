@@ -326,27 +326,27 @@ function renderApp() {
       <header class="admin-topbar">
         <div class="admin-topbar__left">
           <button class="icon-button admin-menu-toggle" type="button" data-action="toggle-sidebar" aria-label="Abrir menú">${icon('menu')}</button>
-          <a class="admin-topbar__brand" href="index.php" target="_blank" rel="noopener" title="Abrir tienda">
+          <a class="admin-topbar__brand" href="./" target="_blank" rel="noopener" title="Abrir tienda">
             <span class="brand-mark" aria-hidden="true">${safeUrl(state.data.settings.logo_url) ? `<img src="${escapeHTML(safeUrl(state.data.settings.logo_url))}" alt="">` : icon('logo')}</span>
             <span>${escapeHTML(storeName)}</span>
           </a>
           <span class="admin-caption">Centro de administración</span>
         </div>
         <div class="admin-topbar__right">
-          <a class="button button-secondary button-small" href="index.php" target="_blank" rel="noopener">${icon('eye')} Ver tienda</a>
+          <a class="button button-secondary button-small" href="./" target="_blank" rel="noopener">${icon('eye')} Ver tienda</a>
           <span class="admin-avatar" aria-label="${escapeHTML(user.name || 'Administrador')}">${escapeHTML(firstLetter(user.name))}</span>
           <button class="icon-button" type="button" data-action="logout" aria-label="Cerrar sesión">${icon('logout')}</button>
         </div>
       </header>
       <div class="admin-layout">
         <aside class="admin-sidebar${state.sidebarOpen ? ' is-open' : ''}" id="admin-sidebar" aria-label="Navegación de administración">
-          <a class="admin-sidebar__brand" href="index.php" target="_blank" rel="noopener" title="Abrir tienda">
+          <a class="admin-sidebar__brand" href="./" target="_blank" rel="noopener" title="Abrir tienda">
           <span class="brand-mark" aria-hidden="true">${safeUrl(state.data.settings.logo_url) ? `<img src="${escapeHTML(safeUrl(state.data.settings.logo_url))}" alt="">` : icon('logo')}</span>
           <span>${escapeHTML(storeName)}</span>
           </a>
           <nav class="admin-nav">${navHTML()}</nav>
           <div class="admin-sidebar__bottom">
-            <a class="admin-nav__link" href="index.php" target="_blank" rel="noopener">${icon('external')}<span>Ver tienda</span></a>
+            <a class="admin-nav__link" href="./" target="_blank" rel="noopener">${icon('external')}<span>Ver tienda</span></a>
             <button class="admin-nav__link" type="button" data-action="logout">${icon('logout')}<span>Cerrar sesión</span></button>
             <small class="text-faint" style="padding:0 10px">Desarrollado por A.T.</small>
           </div>
@@ -674,7 +674,7 @@ function publicTrackingUrl(order) {
   const guide = orderTrackingNumber(order);
   // The panel lives at /admin or /admin.php; the tracker sits next to it.
   const base = window.location.href.replace(/admin(?:\.php)?\/?(?:[?#].*)?$/i, '');
-  const url = new URL('seguimiento.php', base);
+  const url = new URL('seguimiento', base);
   if (guide) url.searchParams.set('guia', guide);
   return url.href;
 }

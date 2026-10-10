@@ -6,7 +6,7 @@ const toastRoot = document.querySelector('#toast-root');
 const CART_KEY = 'lumina-production-cart-v1';
 // Keep the direct PHP entry point so the project also works with `php -S` in
 // local development. Apache additionally exposes the clean `/tienda` route.
-const STORE_PATH = 'tienda.php';
+const STORE_PATH = 'tienda';
 
 if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   document.documentElement.classList.add('has-reveal');
@@ -44,7 +44,7 @@ function storeHref(category = '') {
 
 function trackingHref(guide = '') {
   const value = String(guide || '').trim();
-  return value ? `seguimiento.php?guia=${encodeURIComponent(value)}` : 'seguimiento.php';
+  return value ? `seguimiento?guia=${encodeURIComponent(value)}` : 'seguimiento';
 }
 
 // wa.me needs the international number without the national trunk "0":
@@ -70,7 +70,7 @@ function productShareUrl(product) {
 }
 
 function homeHref(fragment = '#inicio') {
-  return isHomeView() ? fragment : `index.php${fragment}`;
+  return isHomeView() ? fragment : `./${fragment}`;
 }
 
 function readCart() {
@@ -136,8 +136,9 @@ function cleanUrl(value = '') {
   const stringValue = String(value).trim();
   if (/^https:\/\//i.test(stringValue)) return stringValue;
   if (stringValue === '#catalogo' || /^(?:\.?\/)?tienda(?:\.php)?\/?$/i.test(stringValue)) return storeHref();
-  if (stringValue.startsWith('#')) return isHomeView() ? stringValue : `index.php${stringValue}`;
-  if (/^(?:\.?\/)?index\.php(?:#.*)?$/i.test(stringValue)) return stringValue;
+  if (stringValue.startsWith('#')) return isHomeView() ? stringValue : `./${stringValue}`;
+  const home = stringValue.match(/^(?:\.?\/)?index\.php(#.*)?$/i);
+  if (home) return `./${home[1] || ''}`;
   return storeHref();
 }
 
