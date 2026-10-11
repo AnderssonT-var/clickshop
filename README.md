@@ -4,6 +4,23 @@ Lúmina Store es una tienda PHP + MySQL preparada para catálogo, administració
 
 No existen credenciales de administrador incluidas, ni deben añadirse al repositorio. El primer propietario se crea una vez, de forma local o por SSH, con el script incluido.
 
+
+## Capturas
+
+**Página de inicio**
+
+![Página de inicio](docs/capturas/inicio.jpg)
+
+**Catálogo con filtros y ofertas**
+
+![Catálogo con filtros y ofertas](docs/capturas/tienda.jpg)
+
+**Panel de administración**
+
+![Panel de administración](docs/capturas/admin.jpg)
+
+_Capturas tomadas con datos de prueba._
+
 ## Requisitos
 
 - PHP 8.2 o superior con `pdo_mysql`, `mbstring`, `fileinfo` e `iconv` habilitados.

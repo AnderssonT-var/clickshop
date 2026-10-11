@@ -3,7 +3,8 @@
 !.env.example
 storage/*.sqlite
 storage/logs/
-docs/
+docs/*
+!docs/capturas/
 .DS_Store
 *.log
 vendor/
