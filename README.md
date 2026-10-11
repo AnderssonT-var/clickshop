@@ -7,6 +7,8 @@ No existen credenciales de administrador incluidas, ni deben añadirse al reposi
 
 ## Capturas
 
+**Demo interactiva (datos ficticios):** [anderssont-var.github.io/AnderssonT-var.github/demos/clickshop/](https://anderssont-var.github.io/AnderssonT-var.github/demos/clickshop/)
+
 **Página de inicio**
 
 ![Página de inicio](docs/capturas/inicio.jpg)
