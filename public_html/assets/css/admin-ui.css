@@ -231,3 +231,45 @@
   .admin-body .admin-table td:last-child { margin-left: auto; }
   .order-guides { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Admin polish — November 2026
+   ========================================================================== */
+:root { --p-ease: cubic-bezier(.22, 1, .36, 1); }
+
+/* Focus rings only for keyboard users (the page and dialogs take programmatic focus) */
+.admin-body [tabindex="-1"]:focus,
+.admin-body main:focus,
+.admin-body .admin-main:focus,
+.admin-body .modal:focus { outline: none; }
+.admin-body .modal-close:focus:not(:focus-visible),
+.admin-body button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.admin-body :focus-visible { outline: 2px solid #0a6cff; outline-offset: 2px; }
+
+/* Trust card list: small icon, title on one line */
+.admin-trust-title { display: inline-flex; align-items: center; gap: 10px; color: #1d1d1f; white-space: nowrap; }
+.admin-trust-title svg { flex: none; width: 20px; height: 20px; }
+.admin-body .trust-card__icon svg { width: 22px; height: 22px; }
+
+/* Press feedback on every control */
+.admin-body .button, .admin-body .icon-button, .admin-body .pill, .admin-body [data-nav] { transition: transform 120ms var(--p-ease), background-color .2s, box-shadow .2s, color .2s; }
+.admin-body .button:active, .admin-body .icon-button:active, .admin-body .pill:active { transform: scale(.96); }
+
+/* Dialogs arrive with a short spring-free settle */
+.admin-body .modal.is-open { transition: opacity 240ms var(--p-ease), transform 320ms var(--p-ease); }
+
+/* KPI tiles share one row on wide screens (no orphan fifth tile) */
+@media (min-width: 1101px) { .admin-body .admin-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); } }
+
+/* Phones: KPI tiles two per row instead of one long column */
+@media (max-width: 700px) {
+  .admin-body .admin-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+  .admin-body .admin-stat { padding: 14px !important; }
+  .admin-body .admin-trust-title { white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-body .button:active, .admin-body .icon-button:active, .admin-body .pill:active { transform: none; }
+}
+/* Login: the note below the button gets its own breathing room */
+.admin-body .form-hint.text-center { margin-top: 14px; line-height: 1.45; }

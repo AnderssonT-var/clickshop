@@ -686,3 +686,203 @@ html, body { overflow-x: clip; }
 /* Leave room under the footer so the floating WhatsApp button never covers the credit line */
 .cs-footer { padding-bottom: 104px; }
 @media (max-width: 480px) { .cs-footer { padding-bottom: 96px; } }
+/* Developer credit links to the portfolio */
+.cs-footer__bottom .copyright-credit a { color: #0a6cff !important; text-decoration: none; border-bottom: 1px solid rgba(10, 108, 255, .35); transition: border-color .2s, color .2s; }
+.cs-footer__bottom .copyright-credit a:hover { color: #7a4dff !important; border-bottom-color: currentColor; }
+
+/* Category pills stay on one line; the row scrolls sideways */
+.category-pills .pill { white-space: nowrap; flex: 0 0 auto; }
+
+/* Category carousel — two rows per page (4 columns on desktop, 3 on tablet, 2 on phones) */
+#store-app .collection-carousel { position: relative; margin-inline: -8px; }
+#store-app .collections-section .collection-grid {
+  --cols: 4; --gap: 20px;
+  display: grid; grid-auto-flow: column; grid-template-columns: none; grid-template-rows: repeat(2, auto);
+  grid-auto-columns: calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  gap: var(--gap); padding: 8px 8px 20px; scroll-padding-inline: 8px;
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+#store-app .collections-section .collection-grid::-webkit-scrollbar { display: none; }
+#store-app .collections-section .collection-card { scroll-snap-align: none; }
+#store-app .collections-section .collection-card:nth-child(8n + 1) { scroll-snap-align: start; scroll-snap-stop: always; }
+
+/* One rounded block: the banner runs edge to edge and shares the card's corners */
+#store-app .collections-section .collection-card {
+  display: flex; flex-direction: column; justify-content: flex-start; height: 100%; min-height: 0;
+  border-radius: 22px; overflow: hidden; isolation: isolate; background: #f2f3f7;
+  box-shadow: 0 1px 2px rgba(20, 20, 40, .04), 0 8px 24px rgba(20, 20, 60, .05);
+}
+#store-app .collections-section .collection-card .collection-image {
+  flex: none; width: 100%; height: auto; min-height: 0; aspect-ratio: 16 / 10; margin: 0; padding: 0; border-radius: 0; background: #eef0f6; overflow: hidden;
+}
+#store-app .collections-section .collection-card:not(.collection-card--all) .collection-img { display: block; width: 100%; height: 100%; padding: 0; object-fit: cover; border-radius: 0; }
+#store-app .collections-section .collection-card > div:last-child { flex: 1; padding: 16px 18px 18px; }
+#store-app .collections-section .collection-card p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Arrows and page dots */
+#store-app .collection-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 6px; }
+#store-app .collection-nav[hidden] { display: none; }
+#store-app .collection-arrow { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(0, 0, 0, .08); border-radius: 50%; background: #fff; color: #1d1d1f; box-shadow: 0 4px 14px rgba(20, 20, 60, .08); cursor: pointer; transition: transform .2s, opacity .2s, color .2s; }
+#store-app .collection-arrow:hover:not([disabled]) { color: #0a6cff; transform: scale(1.06); }
+#store-app .collection-arrow[disabled] { opacity: .35; cursor: default; }
+#store-app .collection-arrow--prev .icon { transform: rotate(180deg); }
+#store-app .collection-dots { display: flex; align-items: center; gap: 7px; }
+#store-app .collection-dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: rgba(0, 0, 0, .16); cursor: pointer; transition: width .3s, background .3s; }
+#store-app .collection-dots button.is-active { width: 26px; background: linear-gradient(90deg, #0a6cff, #7a4dff); }
+
+@media (max-width: 1023px) {
+  #store-app .collections-section .collection-grid { --cols: 3; }
+  #store-app .collections-section .collection-card:nth-child(8n + 1) { scroll-snap-align: none; }
+  #store-app .collections-section .collection-card:nth-child(6n + 1) { scroll-snap-align: start; scroll-snap-stop: always; }
+}
+@media (max-width: 700px) {
+  #store-app .collection-carousel { margin-inline: -6px; }
+  #store-app .collections-section .collection-grid { --cols: 2; --gap: 12px; padding: 6px 6px 16px; scroll-padding-inline: 6px; }
+  #store-app .collections-section .collection-card:nth-child(6n + 1) { scroll-snap-align: none; }
+  #store-app .collections-section .collection-card:nth-child(4n + 1) { scroll-snap-align: start; scroll-snap-stop: always; }
+  #store-app .collections-section .collection-card { border-radius: 18px; }
+  #store-app .collections-section .collection-card > div:last-child { padding: 12px 13px 14px; }
+  #store-app .collections-section .collection-card h3 { margin: 3px 0 4px; font-size: 16px; }
+  #store-app .collections-section .collection-card p { font-size: 11.5px; line-height: 1.35; }
+  #store-app .collections-section .collection-card span { font-size: 12px; }
+}
+
+/* ==========================================================================
+   Design polish — November 2026
+   Rhythm, alignment and motion fixes found in a full review of every screen.
+   ========================================================================== */
+
+/* Shared motion language: one easing for UI, one gentle spring for arrivals */
+:root { --p-ease: cubic-bezier(.22, 1, .36, 1); --p-spring: cubic-bezier(.2, 1.25, .35, 1); --p-fast: 160ms; --p-base: 320ms; }
+
+/* 1. Vertical rhythm — sections breathe without leaving holes */
+#store-app .collections-section,
+#store-app .promo-section,
+#store-app .reviews-section { padding-top: 88px; padding-bottom: 88px; }
+#store-app .trust-section { padding-top: 96px; padding-bottom: 88px; }
+#store-app .collections-section { padding-bottom: 64px; }
+@media (max-width: 700px) {
+  #store-app .featured-section { padding-top: 40px; }
+  #store-app .trust-section,
+  #store-app .collections-section,
+  #store-app .promo-section,
+  #store-app .reviews-section { padding-top: 56px; padding-bottom: 56px; }
+  #store-app .collections-section { padding-bottom: 44px; }
+  #store-app .section-heading { margin-bottom: 22px; }
+}
+
+/* 2. Hero — on phones both actions share one width and read as a pair */
+@media (max-width: 700px) {
+  #store-app .hero-actions { flex-direction: column; align-items: stretch; width: min(100%, 320px); margin-inline: auto; gap: 10px; }
+  #store-app .hero-actions .button { justify-content: center; width: 100%; }
+}
+
+/* 3. Trust cards — titles line up whatever the copy length */
+#store-app .trust-card .trust-icon { margin: 0 0 26px; }
+#store-app .trust-card h3 { margin-top: auto; }
+@media (max-width: 560px) { #store-app .trust-card .trust-icon { margin: 0; } #store-app .trust-card h3 { margin-top: 0; } }
+
+/* 4. Promotions — the progress note is a sentence, not three columns */
+#store-app .promo-progress p { display: block; line-height: 1.45; }
+@media (max-width: 700px) {
+  #store-app .promo-card__art { min-height: 150px; max-height: 170px; }
+  #store-app .promo-card__icon .icon { width: 40px; height: 40px; }
+}
+
+/* 5. Cart drawer — header, totals and close button aligned on one grid */
+#store-app ~ #modal-root .drawer-header,
+#modal-root .drawer-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+#modal-root .drawer-header .icon-button { flex: none; width: 40px; height: 40px; margin: -4px -6px 0 0; border: 0; border-radius: 50%; background: #f2f2f5; color: #1d1d1f; transition: background-color var(--p-fast), transform var(--p-fast); }
+#modal-root .drawer-header .icon-button:hover { background: #e7e7ec; }
+#modal-root .drawer-header .icon-button:active { transform: scale(.92); }
+#modal-root .summary-total { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; font-size: 18px; letter-spacing: -.01em; }
+#modal-root .summary-total strong { font-size: 22px; letter-spacing: -.02em; }
+#modal-root .cart-summary { gap: 10px; padding-top: 14px; }
+#modal-root .checkout-summary-preview { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 14px; background: #f5f5f7; color: #6e6e73; font-size: 14px; }
+#modal-root .checkout-summary-preview strong { color: #1d1d1f; font-size: 18px; letter-spacing: -.02em; }
+#modal-root .drawer { overscroll-behavior: contain; }
+
+/* 6. Dialogs — enter and leave along the same path; focus ring only for keyboards */
+#modal-root .modal:focus { outline: none; }
+#modal-root .modal-close:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+#modal-root .modal-close { transition: background-color var(--p-fast), transform var(--p-fast); }
+#modal-root .modal-close:active { transform: scale(.9); }
+#modal-root.is-closing .modal-backdrop,
+#modal-root.is-closing .drawer-backdrop { opacity: 0; pointer-events: none; transition: opacity 240ms var(--p-ease); }
+#modal-root.is-closing .modal { opacity: 0; transform: translate(-50%, -47%) scale(.97); animation: none; transition: opacity 220ms var(--p-ease), transform 240ms var(--p-ease); }
+#modal-root.is-closing .drawer { transform: translateX(104%); transition: transform 300ms var(--p-ease); }
+#modal-root .drawer { transition: transform 420ms var(--p-ease); }
+
+/* 7. Product sheet on phones — facts in two columns, less scrolling */
+@media (max-width: 700px) {
+  #modal-root .product-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #modal-root .product-facts > div { min-height: 0; padding: 11px 12px; }
+}
+
+/* 8. Footer CTA on phones — two equal buttons that never wrap */
+@media (max-width: 700px) {
+  .cs-footer__cta-actions .button { min-width: 0; padding: 0 14px; white-space: nowrap; }
+}
+
+/* 9. Press feedback — respond on touch-down, everywhere */
+#store-app .button:active,
+#store-app .collection-card:active,
+#store-app .product-card [data-action]:active { transition-duration: 90ms; }
+#store-app .button:active { transform: scale(.97); }
+#store-app .collection-card:active { transform: scale(.985); }
+#store-app .collection-arrow:active:not([disabled]) { transform: scale(.92); }
+
+/* 10. Tracking page — no dead space under the form on wide screens */
+#store-app .tracking-page { min-height: 0; padding-bottom: 72px; }
+
+/* 11. Reduced motion — keep meaning, drop movement */
+@media (prefers-reduced-motion: reduce) {
+  #modal-root.is-closing .modal { transition: opacity 160ms linear !important; transform: translate(-50%, -50%) !important; }
+  #modal-root .drawer, #modal-root.is-closing .drawer { transition-duration: 1ms !important; }
+  #store-app .collections-section .collection-grid { scroll-behavior: auto; }
+  #store-app .button:active, #store-app .collection-card:active { transform: none; }
+}
+#modal-root .free-ship ~ .cart-notice:not(.cart-shipping-disclosure) { display: none; }
+/* 12. The WhatsApp button invites three times, then rests (endless pulses train people to ignore it) */
+.whatsapp-fab::before { animation-iteration-count: 3; }
+.wa-widget.is-open .whatsapp-fab::before { animation: none; }
+
+/* 13. Cart drawer layout: products scroll, totals and the checkout button stay pinned
+   above the browser's bottom bar (iOS Safari floats its toolbar over the page). */
+#modal-root .drawer:not(.empty-drawer) {
+  top: 0; bottom: 0; height: auto; max-height: 100dvh;
+  display: flex; flex-direction: column; overflow: hidden; padding: 0;
+}
+#modal-root .drawer:not(.empty-drawer) .drawer-header { flex: none; margin: 0; padding: 22px 22px 10px; }
+#modal-root .drawer:not(.empty-drawer) .cart-lines {
+  flex: 1 1 auto; min-height: 96px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 0 22px 8px;
+}
+#modal-root .drawer:not(.empty-drawer) .cart-summary {
+  flex: none; gap: 8px; margin: 0; padding: 14px 22px calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #ececf0; background: rgba(255, 255, 255, .97);
+  box-shadow: 0 -12px 28px -18px rgba(20, 20, 40, .25);
+}
+#modal-root .drawer:not(.empty-drawer) .cart-summary .button { min-height: 52px; margin-top: 4px; }
+#modal-root .drawer:not(.empty-drawer) .cart-summary .cart-notice { margin: 0; }
+@media (max-width: 700px) {
+  #modal-root .drawer:not(.empty-drawer) .drawer-header { padding: 16px 18px 6px; }
+  #modal-root .drawer:not(.empty-drawer) .cart-lines { padding: 0 18px 6px; }
+  #modal-root .drawer:not(.empty-drawer) .cart-summary { padding: 12px 18px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  #modal-root .summary-total strong { font-size: 20px; }
+}
+
+/* 14. Gestures stay inside the cart and dialogs: the list scrolls, the page behind does not */
+#modal-root .drawer-backdrop, #modal-root .modal-backdrop { overscroll-behavior: contain; }
+#modal-root .drawer:not(.empty-drawer) .cart-lines, #modal-root .modal { overscroll-behavior: contain; }
+/* 15. Compact cart lines on phones so more products fit above the totals */
+@media (max-width: 700px) {
+  #modal-root .cart-line { grid-template-columns: 58px minmax(0, 1fr) auto; gap: 12px; padding-block: 12px; }
+  #modal-root .cart-line-image { width: 58px; height: 58px; }
+  #modal-root .cart-line h3 { margin: 0; font-size: 15px; line-height: 1.25; letter-spacing: -.01em; }
+  #modal-root .cart-line-price { margin-top: 4px; font-size: 13px; }
+  #modal-root .cart-line .quantity { margin-top: 6px; transform-origin: left center; }
+  #modal-root .cart-line-side strong { font-size: 15px; }
+  #modal-root .drawer-header h2 { font-size: 24px; }
+  #modal-root .summary-row { font-size: 14px; }
+}

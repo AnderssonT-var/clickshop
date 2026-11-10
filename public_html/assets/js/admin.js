@@ -76,6 +76,12 @@ const ICONS = {
   upload: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 17h2V9.85l2.58 2.58L17 11l-5-5-5 5 1.42 1.43L11 9.85V17Zm-6 2h14v-2H5v2Z" fill="currentColor"/></svg>',
   external: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6h-2V7.4l-7.3 7.3-1.4-1.4L16.6 6H14V4ZM5 6h6v2H7v9h9v-4h2v6H5V6Z" fill="currentColor"/></svg>',
   check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.2 16.2-3.7-3.7 1.4-1.4 2.3 2.3 7.9-7.9 1.4 1.4-9.3 9.3Z" fill="currentColor"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>',
+  card: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="1"/><path d="M12 10v10M3 7h18v3H3zM12 7H8.5a2 2 0 1 1 2-3C12 4 12 7 12 7Zm0 0h3.5a2 2 0 1 0-2-3C12 4 12 7 12 7Z"/></svg>',
+  box: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 7 8-4 8 4v10l-8 4-8-4V7Z"/><path d="m4 7 8 4 8-4M12 11v10"/></svg>',
+  headset: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h3v5H5a1 1 0 0 1-1-1v-4Zm16 0h-3v5h2a1 1 0 0 0 1-1v-4Z"/><path d="M17 18c0 2-2 3-5 3"/></svg>',
+  location: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>',
   truck: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h11v10H3V5Zm2 2v6h7V7H5Zm10 2h3.5L21 12v3h-1.1a3 3 0 0 1-5.8 0H12v-2h7v-.38L17.5 11H15V9Zm-8 7a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z" fill="currentColor"/></svg>',
   route: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3a4 4 0 0 1 4 4c0 3-4 7.5-4 7.5S3 10 3 7a4 4 0 0 1 4-4Zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 5a4 4 0 0 1 4 4c0 3-4 7.5-4 7.5s-4-4.5-4-7.5a4 4 0 0 1 4-4Zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM9 18h6v2H9v-2Z" fill="currentColor"/></svg>',
   eye: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c5.3 0 9.1 4.4 10 7-1 2.6-4.7 7-10 7S2.9 14.6 2 12c.9-2.6 4.7-7 10-7Zm0 2c-3.7 0-6.5 2.8-7.7 5 1.2 2.2 4 5 7.7 5s6.5-2.8 7.7-5C18.5 9.8 15.7 7 12 7Zm0 2.3A2.7 2.7 0 1 1 12 14.7 2.7 2.7 0 0 1 12 9.3Z" fill="currentColor"/></svg>',
@@ -1088,7 +1094,7 @@ function renderTrust() {
   const cards = state.data.trustCards;
   return `${pageHeading('Tarjetas de confianza', 'Edita el bloque de beneficios bajo el hero: envío, catálogo, atención y gestión.', pageAction('Nueva tarjeta', 'new-trust-card'))}
     <section class="admin-panel"><header class="admin-panel__header"><div><h2 class="admin-panel__title">Vista previa del bloque</h2><p class="admin-form-section__copy">Este contenido es totalmente manipulable desde aquí.</p></div><span class="status ${state.data.settings.trust_enabled === '0' || state.data.settings.trust_enabled === 0 ? 'status--inactive' : 'status--active'}">${state.data.settings.trust_enabled === '0' || state.data.settings.trust_enabled === 0 ? 'Oculto' : 'Visible'}</span></header><div class="trust-grid" style="margin-bottom:26px">${cards.filter((card) => card.status === 'active').map(trustPreview).join('') || '<p class="text-muted">No hay tarjetas visibles.</p>'}</div></section>
-    <div style="height:18px"></div>${renderGenericTable({ records: cards, resource: 'trust-cards', actionPrefix: 'trust-card', columns: [{ key: 'title', label: 'Tarjeta', render: (record) => `<span style="display:inline-flex;align-items:center;gap:9px;color:#1d1d1f">${icon(record.icon_key)}<strong>${escapeHTML(record.title)}</strong></span><small class="text-faint" style="display:block;margin-top:4px">${escapeHTML(record.body)}</small>` }, { key: 'theme', label: 'Estilo' }, { key: 'status', label: 'Estado', render: (record) => statusPill(record.status) }, { key: 'sort_order', label: 'Orden' }] })}`;
+    <div style="height:18px"></div>${renderGenericTable({ records: cards, resource: 'trust-cards', actionPrefix: 'trust-card', columns: [{ key: 'title', label: 'Tarjeta', render: (record) => `<span class="admin-trust-title">${icon(record.icon_key)}<strong>${escapeHTML(record.title)}</strong></span><small class="text-faint" style="display:block;margin-top:4px">${escapeHTML(record.body)}</small>` }, { key: 'theme', label: 'Estilo' }, { key: 'status', label: 'Estado', render: (record) => statusPill(record.status) }, { key: 'sort_order', label: 'Orden' }] })}`;
 }
 
 function trustPreview(card) {
@@ -1211,8 +1217,12 @@ function openModal(title, content, options = {}) {
   requestAnimationFrame(() => {
     modalRoot.querySelector('.modal-backdrop')?.classList.add('is-open');
     modalRoot.querySelector('.modal')?.classList.add('is-open');
-    const firstFocusable = modalRoot.querySelector('input, select, textarea, button');
-    firstFocusable?.focus();
+    // Desktop: jump straight into the first field. Touch screens: focus the dialog
+    // itself so the keyboard does not pop up before the user chooses a field.
+    const dialog = modalRoot.querySelector('.modal');
+    const firstField = dialog?.querySelector('.modal__body input:not([type="hidden"]):not([disabled]), .modal__body select, .modal__body textarea');
+    if (firstField && window.matchMedia('(pointer: fine)').matches) firstField.focus({ preventScroll: true });
+    else if (dialog) { dialog.setAttribute('tabindex', '-1'); dialog.focus({ preventScroll: true }); }
   });
   if (options.onOpen) options.onOpen();
 }

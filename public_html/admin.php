@@ -12,12 +12,12 @@ declare(strict_types=1);
   <link rel="stylesheet" href="assets/css/demo-polish.css?v=2">
   <link rel="stylesheet" href="assets/css/admin-reference.css?v=9">
   <link rel="stylesheet" href="assets/css/admin-orders.css?v=2">
-  <link rel="stylesheet" href="assets/css/admin-ui.css?v=1">
+  <link rel="stylesheet" href="assets/css/admin-ui.css?v=2">
 </head>
 <body class="admin-body">
   <div id="admin-app" class="app-shell"><div class="app-loading"><span class="loading-orb"></span><p>Preparando administración…</p></div></div>
   <div id="admin-modal-root"></div>
   <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="assets/js/admin.js?v=11"></script>
+  <script type="module" src="assets/js/admin.js?v=12"></script>
 </body>
 </html>

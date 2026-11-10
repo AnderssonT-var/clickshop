@@ -636,7 +636,7 @@ function catalogCollage() {
 }
 
 function renderCollections(categories) {
-  return `<section id="colecciones" class="section collections-section"><div class="container"><div class="section-heading"><div><p class="eyebrow">Explora por intención</p><h2>Elige tu categoría.</h2></div><a class="text-link" href="${storeHref()}">Ver todo ${icon('arrow', 16)}</a></div><div class="collection-grid">${categories.map((category) => `<button type="button" class="collection-card reveal" data-action="open-category" data-category="${escapeAttribute(category.slug)}"><div class="collection-image">${imageMarkup(category.image_url, category.name, 'collection-img')}</div><div><p>${escapeHtml(category.description || 'Productos elegidos para ti')}</p><h3>${escapeHtml(category.name)}</h3><span>Explorar ${icon('arrow', 15)}</span></div></button>`).join('')}<button type="button" class="collection-card collection-card--all reveal" data-action="open-category" data-category="all"><div class="collection-image collection-image--all">${catalogCollage()}</div><div><p>${(state.data?.products || []).length} productos disponibles</p><h3>Todo el catálogo</h3><span>Ver la tienda ${icon('arrow', 15)}</span></div></button></div></div></section>`;
+  return `<section id="colecciones" class="section collections-section"><div class="container"><div class="section-heading"><div><p class="eyebrow">Explora por intención</p><h2>Elige tu categoría.</h2></div><a class="text-link" href="${storeHref()}">Ver todo ${icon('arrow', 16)}</a></div><div class="collection-carousel"><div class="collection-grid" data-collection-track>${categories.map((category) => `<button type="button" class="collection-card" data-action="open-category" data-category="${escapeAttribute(category.slug)}"><div class="collection-image">${imageMarkup(category.image_url, category.name, 'collection-img')}</div><div><p>${escapeHtml(category.description || 'Productos elegidos para ti')}</p><h3>${escapeHtml(category.name)}</h3><span>Explorar ${icon('arrow', 15)}</span></div></button>`).join('')}<button type="button" class="collection-card collection-card--all" data-action="open-category" data-category="all"><div class="collection-image collection-image--all">${catalogCollage()}</div><div><p>${(state.data?.products || []).length} productos disponibles</p><h3>Todo el catálogo</h3><span>Ver la tienda ${icon('arrow', 15)}</span></div></button></div></div><div class="collection-nav" data-collection-nav hidden><button type="button" class="collection-arrow collection-arrow--prev" data-action="collection-page" data-dir="-1" aria-label="Categorías anteriores">${icon('arrow', 18)}</button><div class="collection-dots" data-collection-dots></div><button type="button" class="collection-arrow" data-action="collection-page" data-dir="1" aria-label="Más categorías">${icon('arrow', 18)}</button></div></div></section>`;
 }
 
 const CAMPAIGN_LABELS = { promotion: 'Promoción', sale: 'Rebaja', campaign: 'Campaña', benefit: 'Beneficio' };
@@ -894,7 +894,7 @@ function renderFooter(settings) {
         <div class="cs-footer__col cs-footer__contact"><h3>Contacto</h3>${phone}${email}<span class="cs-footer__hours">${icon('clock', 16)}<span>Respondemos todos los días</span></span></div>
       </div>
       <div class="cs-footer__badges">${[['shield', 'Compra segura'], ['truck', 'Seguimiento en línea'], ['chat', 'Pedido por WhatsApp'], ['check', 'Productos verificados']].map(([ic, label]) => `<span>${icon(ic, 16)}${label}</span>`).join('')}</div>
-      <div class="cs-footer__bottom"><span>© ${new Date().getFullYear()} ${name}. Todos los derechos reservados.</span><span class="copyright-credit">Desarrollado por A.T.</span></div>
+      <div class="cs-footer__bottom"><span>© ${new Date().getFullYear()} ${name}. Todos los derechos reservados.</span><span class="copyright-credit">Desarrollado por <a href="https://anderssont-var.github.io/AnderssonT-var.github/#inicio" target="_blank" rel="noopener" title="Página de presentación de A.T.">A.T.</a></span></div>
     </div>
   </footer>`;
 }
@@ -1025,6 +1025,58 @@ async function lookupTrackingGuide(guide) {
   }
 }
 
+// Category carousel: two rows per page, swipe or use the arrows and dots.
+function collectionStride(track) {
+  const style = window.getComputedStyle(track);
+  const gap = parseFloat(style.columnGap) || 0;
+  return track.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0) + gap;
+}
+
+function updateCollectionDots() {
+  const track = document.querySelector('[data-collection-track]');
+  const dots = document.querySelector('[data-collection-dots]');
+  if (!track || !dots) return;
+  const stride = collectionStride(track);
+  const current = stride > 0 ? Math.round(track.scrollLeft / stride) : 0;
+  dots.querySelectorAll('button').forEach((dot, index) => {
+    dot.classList.toggle('is-active', index === current);
+    dot.setAttribute('aria-current', index === current ? 'true' : 'false');
+  });
+  const max = track.scrollWidth - track.clientWidth - 2;
+  document.querySelector('.collection-arrow--prev')?.toggleAttribute('disabled', track.scrollLeft <= 2);
+  document.querySelector('.collection-arrow:not(.collection-arrow--prev)')?.toggleAttribute('disabled', track.scrollLeft >= max);
+}
+
+function setupCollectionCarousel() {
+  const track = document.querySelector('[data-collection-track]');
+  const nav = document.querySelector('[data-collection-nav]');
+  const dots = document.querySelector('[data-collection-dots]');
+  if (!track || !nav || !dots) return;
+  // The grid flows column by column; reorder so each page reads left to right, row by row.
+  const cols = parseInt(window.getComputedStyle(track).getPropertyValue('--cols'), 10) || 2;
+  Array.from(track.children).forEach((card, index) => {
+    const perPage = cols * 2;
+    const page = Math.floor(index / perPage);
+    const slot = index % perPage;
+    card.style.order = String(page * perPage + (slot % cols) * 2 + Math.floor(slot / cols));
+  });
+  const stride = collectionStride(track);
+  const pages = stride > 0 ? Math.max(1, Math.ceil((track.scrollWidth - track.clientWidth - 2) / stride) + 1) : 1;
+  nav.hidden = pages <= 1;
+  dots.innerHTML = Array.from({ length: pages }, (_, index) => `<button type="button" data-action="collection-dot" data-page="${index}" aria-label="Página ${index + 1} de ${pages}"></button>`).join('');
+  if (!track.dataset.bound) {
+    track.dataset.bound = '1';
+    let frame = 0;
+    track.addEventListener('scroll', () => { window.cancelAnimationFrame(frame); frame = window.requestAnimationFrame(updateCollectionDots); }, { passive: true });
+  }
+  if (!window.__collectionResize) {
+    window.__collectionResize = true;
+    let timer = 0;
+    window.addEventListener('resize', () => { window.clearTimeout(timer); timer = window.setTimeout(setupCollectionCarousel, 150); });
+  }
+  updateCollectionDots();
+}
+
 function renderStore() {
   const { settings, categories, banners, campaigns, notices, trustCards, reviews, reviewSummary } = state.data;
   const catalogView = isCatalogView();
@@ -1047,26 +1099,74 @@ function renderStore() {
       ? `${renderCatalog(categories)}${renderRecentlyViewed()}`
       : `${renderHero(banners, settings)}${renderBenefitStrip(settings)}${renderFeatured()}${renderRecentlyViewed()}${renderTrustCards(settings, trustCards)}${categories.length ? renderCollections(categories) : ''}${renderCampaigns(campaigns)}${renderReviews(settings, reviews, reviewSummary)}`);
   window.requestAnimationFrame(setupReveal);
+  window.requestAnimationFrame(setupCollectionCarousel);
   const menuWasOpen = document.querySelector('.mobile-sheet.is-open');
   app.innerHTML = `<div class="site-shell">${renderNotice(notices)}${renderHeader(settings)}<main id="main">${pageContent}</main>${renderFooter(settings)}</div>${renderMobileMenu(settings)}${renderWhatsappFab(settings)}`;
   if (menuWasOpen) document.body.classList.remove('menu-open');
 }
 
+// Freeze the page behind dialogs and the cart. iOS Safari ignores overflow:hidden
+// on <body> for touch scrolling, so the page is pinned in place and restored after.
+let lockedScrollY = null;
+function lockPageScroll() {
+  if (lockedScrollY !== null) return;
+  lockedScrollY = window.scrollY;
+  const body = document.body;
+  if (!window.matchMedia('(pointer: coarse)').matches) {
+    // Desktop: hiding the root scrollbar is enough; keep the layout from shifting.
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.overflow = 'hidden';
+    if (gutter > 0) body.style.paddingRight = `${gutter}px`;
+    return;
+  }
+  body.style.position = 'fixed';
+  body.style.top = `-${lockedScrollY}px`;
+  body.style.left = '0';
+  body.style.right = '0';
+  body.style.width = '100%';
+  body.style.overflow = 'hidden';
+}
+function unlockPageScroll() {
+  if (lockedScrollY === null) return;
+  const body = document.body;
+  const y = lockedScrollY;
+  lockedScrollY = null;
+  if (document.documentElement.style.overflow === 'hidden') {
+    document.documentElement.style.overflow = '';
+    body.style.paddingRight = '';
+    return;
+  }
+  body.style.position = ''; body.style.top = ''; body.style.left = ''; body.style.right = ''; body.style.width = ''; body.style.overflow = '';
+  window.scrollTo({ top: y, behavior: 'instant' });
+}
+
+let modalCloseTimer = 0;
+
 function setModal(content, className = '') {
+  window.clearTimeout(modalCloseTimer);
+  modalRoot.classList.remove('is-closing');
   modalRoot.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><section class="modal ${className}" role="dialog" aria-modal="true" aria-label="Ventana de tienda"><button class="modal-close" type="button" data-action="close-modal" aria-label="Cerrar">${icon('close', 20)}</button>${content}</section></div>`;
   document.body.classList.add('modal-open');
+  lockPageScroll();
   window.requestAnimationFrame(() => {
     modalRoot.querySelector('.modal-backdrop')?.classList.add('is-open');
     modalRoot.querySelector('.modal')?.classList.add('is-open');
   });
-  const focusable = modalRoot.querySelector('button, input, select, textarea, a');
-  if (focusable) focusable.focus();
+  // Focus the dialog itself so keyboard users land inside it without a ring on the close button.
+  const dialog = modalRoot.querySelector('.modal');
+  if (dialog) { dialog.setAttribute('tabindex', '-1'); dialog.focus({ preventScroll: true }); }
 }
 
 function closeModal() {
   if (modalRoot.querySelector('[data-product-detail]')) setProductParam(null);
-  modalRoot.innerHTML = '';
   document.body.classList.remove('modal-open');
+  unlockPageScroll();
+  if (!modalRoot.firstElementChild) return;
+  // Leave along the same path the dialog arrived, then clear it.
+  modalRoot.classList.add('is-closing');
+  modalRoot.querySelectorAll('.is-open').forEach((node) => node.classList.remove('is-open'));
+  window.clearTimeout(modalCloseTimer);
+  modalCloseTimer = window.setTimeout(() => { modalRoot.innerHTML = ''; modalRoot.classList.remove('is-closing'); }, 320);
 }
 
 function toast(message, type = 'success') {
@@ -1334,8 +1434,11 @@ function openCart() {
   const shippingNotice = `${freeShippingBar}<p class="cart-notice cart-shipping-disclosure">${icon('truck', 16)}<span>${shippingDisclosure()}</span></p>`;
   const configuredShippingNotice = state.data.settings.shipping_notice ? `<p class="cart-notice">${escapeHtml(state.data.settings.shipping_notice)}</p>` : '';
   const cartMarkup = lines.length ? `<div class="drawer-backdrop" data-action="close-cart"><aside class="drawer" aria-label="Carrito"><div class="drawer-header"><div><p class="eyebrow">Tu selección</p><h2>Carrito</h2></div><button class="icon-button" type="button" data-action="close-cart" aria-label="Cerrar carrito">${icon('close', 20)}</button></div><div class="cart-lines">${lines.map((line) => `<article class="cart-line"><div class="cart-line-image">${imageMarkup(line.product.image_url, line.product.name, '')}</div><div><h3>${escapeHtml(line.product.name)}</h3>${line.selected.length ? `<p class="cart-line-variant">${escapeHtml(line.selected.map((variant) => variant.option_value).join(' · '))}</p>` : ''}<p class="cart-line-price">${currency(line.unitPrice)}</p><div class="quantity"><button type="button" data-action="cart-quantity" data-key="${escapeAttribute(line.key)}" data-delta="-1" aria-label="Reducir">${icon('minus', 14)}</button><span>${line.quantity}</span><button type="button" data-action="cart-quantity" data-key="${escapeAttribute(line.key)}" data-delta="1" aria-label="Aumentar" ${line.quantity >= line.maxStock ? 'disabled' : ''}>${icon('plus', 14)}</button></div></div><div class="cart-line-side"><strong>${currency(line.unitPrice * line.quantity)}</strong><button class="text-remove" type="button" data-action="cart-remove" data-key="${escapeAttribute(line.key)}">Quitar</button></div></article>`).join('')}</div><div class="cart-summary"><div class="summary-row"><span>Subtotal</span><strong>${currency(cartSubtotal())}</strong></div><div class="summary-row"><span>Envío</span><strong>${shippingLabel()}</strong></div><div class="summary-total"><span>Total</span><strong>${currency(cartTotal())}</strong></div>${shippingNotice}${configuredShippingNotice}<button class="button button-primary button-full" type="button" data-action="checkout">Finalizar por WhatsApp ${icon('arrow', 17)}</button></div></aside></div>` : `<div class="drawer-backdrop" data-action="close-cart"><aside class="drawer empty-drawer"><button class="icon-button drawer-close" type="button" data-action="close-cart" aria-label="Cerrar">${icon('close', 20)}</button>${icon('bag', 32)}<h2>Tu carrito está vacío.</h2><p>Explora el catálogo y guarda aquí los productos que te interesan.</p><button class="button button-dark" type="button" data-action="close-cart">Ver productos</button></aside></div>`;
+  window.clearTimeout(modalCloseTimer);
+  modalRoot.classList.remove('is-closing');
   modalRoot.innerHTML = cartMarkup;
   document.body.classList.add('modal-open');
+  lockPageScroll();
   const backdrop = modalRoot.querySelector('.drawer-backdrop');
   const drawer = modalRoot.querySelector('.drawer');
   // Paint the initial position first so the transition remains smooth, then
@@ -1423,6 +1526,15 @@ async function submitCheckout(form) {
     submit.disabled = false;
     submit.innerHTML = `Continuar a WhatsApp ${icon('arrow', 17)}`;
   }
+}
+
+// Keep the selected category pill visible when the row scrolls sideways.
+function revealActivePill() {
+  const row = document.querySelector('.category-pills');
+  const pill = row?.querySelector('.pill.active');
+  if (!row || !pill || row.scrollWidth <= row.clientWidth) return;
+  const offset = pill.getBoundingClientRect().left - row.getBoundingClientRect().left;
+  row.scrollLeft = Math.max(0, row.scrollLeft + offset - (row.clientWidth - pill.offsetWidth) / 2);
 }
 
 function openReview(productId = 0) {
@@ -1544,7 +1656,15 @@ function handleClick(event) {
   if (action === 'scroll-catalog') return scrollToCatalog();
   if (action === 'open-category') { closeMenu(); return openCategory(button.dataset.category || 'all'); }
   if (action === 'select-banner') return swapBanner(Number(button.dataset.index) || 0);
-  if (action === 'filter-category') { state.category = button.dataset.category || 'all'; state.query = ''; state.catalogPage = 0; renderStore(); return scrollToCatalog(); }
+  if (action === 'collection-page' || action === 'collection-dot') {
+    const track = document.querySelector('[data-collection-track]');
+    if (!track) return;
+    const stride = collectionStride(track);
+    const target = action === 'collection-dot' ? Number(button.dataset.page) * stride : track.scrollLeft + Number(button.dataset.dir) * stride;
+    track.scrollTo({ left: target, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    return;
+  }
+  if (action === 'filter-category') { state.category = button.dataset.category || 'all'; state.query = ''; state.catalogPage = 0; renderStore(); revealActivePill(); return scrollToCatalog(); }
   if (action === 'reset-filters') { state.category = 'all'; state.query = ''; state.sort = 'featured'; state.catalogPage = 0; return renderStore(); }
   if (action === 'catalog-page') { state.catalogPage = Math.max(0, Number(button.dataset.page) || 0); renderStore(); return scrollToCatalog(); }
   if (action === 'view-product') return openProduct(Number(button.dataset.id));
