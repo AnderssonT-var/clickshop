@@ -614,7 +614,8 @@ function setWaChat(open) {
   if (open) { closeMenu(); panel.hidden = false; requestAnimationFrame(() => widget.classList.add('is-open')); }
   else { widget.classList.remove('is-open'); window.setTimeout(() => { if (!widget.classList.contains('is-open')) panel.hidden = true; }, 260); }
   toggle.setAttribute('aria-expanded', String(open));
-  if (open) window.setTimeout(() => widget.querySelector('textarea')?.focus({ preventScroll: true }), 280);
+  // Phones: don't pop the keyboard over the chat before the visitor picks a topic.
+  if (open && window.matchMedia('(pointer: fine)').matches) window.setTimeout(() => widget.querySelector('textarea')?.focus({ preventScroll: true }), 280);
 }
 
 function sendWaChat(form) {
@@ -1754,7 +1755,7 @@ function bindEvents() {
   document.addEventListener('change', handleChange);
   document.addEventListener('submit', handleSubmit);
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.addEventListener('pointermove', (event) => { handleHeroPointer(event); handleCardTilt(event); }, { passive: true });
+    document.addEventListener('pointermove', handleHeroPointer, { passive: true });
   }
   startHeroMotion();
   document.addEventListener('keydown', (event) => {

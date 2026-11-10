@@ -886,3 +886,101 @@ html, body { overflow-x: clip; }
   #modal-root .drawer-header h2 { font-size: 24px; }
   #modal-root .summary-row { font-size: 14px; }
 }
+
+/* ==========================================================================
+   Motion pass — Emil Kowalski's design-engineering rules
+   Strong custom curves, short UI durations, exits faster than entrances,
+   no bounce on functional UI, hover only where a mouse exists, and no
+   decorative loops on things people look at all the time.
+   ========================================================================== */
+:root {
+  --e-out: cubic-bezier(.23, 1, .32, 1);        /* enter / respond */
+  --e-in-out: cubic-bezier(.77, 0, .175, 1);    /* move on screen */
+  --e-drawer: cubic-bezier(.32, .72, 0, 1);     /* iOS-like sheet */
+}
+
+/* Press feedback: 160ms ease-out on every pressable thing, scale .97 */
+#store-app .button, #store-app .pill, #store-app .icon-button, #store-app .cart-button,
+#store-app .collection-arrow, #modal-root .button, #modal-root .icon-button, .whatsapp-fab, .wa-topic, .wa-send {
+  transition-property: transform, background-color, color, border-color, box-shadow, opacity;
+  transition-duration: 160ms; transition-timing-function: var(--e-out);
+}
+#store-app .pill:active, #store-app .icon-button:active, #store-app .cart-button:active, .wa-topic:active, .wa-send:active, .whatsapp-fab:active { transform: scale(.97); }
+#store-app .product-card [data-action="quick-add"]:active { transform: scale(.97); }
+
+/* Product cards: browsed dozens of times — no 3D tilt, no shine sweep, a quiet lift only */
+#store-app .product-card { transform: none; will-change: auto; transition: box-shadow 200ms ease, transform 200ms var(--e-out); }
+#store-app .product-card .product-image-wrap::after { display: none; }
+#store-app .product-card .product-image { transition: transform 300ms var(--e-out); }
+
+/* Hover motion only where hover is real (touch taps leave cards "stuck" lifted otherwise) */
+@media (hover: none), (pointer: coarse) {
+  #store-app .product-card:hover, #store-app .collection-card:hover, #store-app .trust-card:hover, #store-app .review-card:hover,
+  #store-app .button:hover, #store-app .cart-button:hover, .whatsapp-fab:hover, .wa-topic:hover, .wa-send:hover,
+  #store-app .collection-arrow:hover, .cs-footer__col a:hover, .cs-footer__col button:hover, .cs-footer__socials .social-link:hover,
+  .recent-item:hover, .related-item:hover { transform: none; }
+  #store-app .product-card:hover .product-image, #store-app .product-card:hover .product-image-wrap > img.product-image,
+  #store-app .collection-card:hover .collection-img, #store-app .trust-card:hover .trust-icon,
+  .hero:hover .hero-image, .collection-card--all:hover .catalog-collage__item { transform: none; }
+}
+@media (hover: hover) and (pointer: fine) {
+  #store-app .collection-card:hover { transform: translateY(-4px); }
+  #store-app .trust-card:hover { transform: translateY(-4px); }
+  #store-app .trust-card:hover .trust-icon { transform: scale(1.06); }
+}
+
+/* Scroll reveal: shorter travel, strong ease-out */
+.has-reveal .reveal:not(.is-visible), .has-reveal .section-heading:not(.is-visible) { transform: translateY(12px); }
+.has-reveal .reveal, .has-reveal .section-heading { transition: opacity 500ms var(--e-out), transform 500ms var(--e-out); }
+
+/* Hero: one entrance, then calm. No endless shine on the button; floats are smaller */
+.button-shine::after { animation-iteration-count: 1; }
+.hero-word { animation-duration: 600ms; animation-timing-function: var(--e-out); }
+.hero-in { animation-duration: 600ms; animation-timing-function: var(--e-out); }
+@keyframes word-in { from { opacity: 0; transform: translateY(.35em); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes hero-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+@keyframes chip-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.hero-card { transition: transform 600ms var(--e-in-out), opacity 400ms ease, filter 400ms ease; }
+@media (hover: none), (pointer: coarse) { .hero-visual--image .hero-image-frame, .hero-showcase { transform: none; } }
+
+/* Cart button bump: quick confirmation, no rubber overshoot */
+.cart-button.is-bumping { animation: cart-bump 300ms var(--e-out); }
+.cart-button.is-bumping .cart-count { animation: cart-count-pop 300ms var(--e-out); }
+@keyframes cart-bump { 0% { transform: scale(1); } 40% { transform: scale(1.1); } 100% { transform: scale(1); } }
+@keyframes cart-count-pop { 0% { transform: scale(1); } 40% { transform: scale(1.25); background: #25d366; } 100% { transform: scale(1); } }
+
+/* Dialogs: 240ms in, 160ms out, centered, no bounce */
+#modal-root .modal.is-open { animation: e-modal-in 240ms var(--e-out); }
+@keyframes e-modal-in { from { opacity: 0; transform: translate(-50%, -48%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+#modal-root.is-closing .modal { transition: opacity 160ms ease-out, transform 160ms ease-out; transform: translate(-50%, -49%) scale(.98); }
+#modal-root.is-closing .modal-backdrop, #modal-root.is-closing .drawer-backdrop { transition: opacity 180ms ease-out; }
+
+/* Cart drawer: iOS sheet curve in, quicker out */
+#modal-root .drawer { transition: transform 380ms var(--e-drawer); }
+#modal-root.is-closing .drawer { transition: transform 220ms var(--e-out); }
+
+/* Toasts: rise from where they live, no overshoot */
+.toast { animation: e-toast-in 280ms var(--e-out) both; }
+@keyframes e-toast-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* WhatsApp chat: grows from the button (origin bottom-right), leaves faster than it came */
+.wa-panel { transition: opacity 160ms ease-out, transform 160ms var(--e-out); }
+.wa-widget.is-open .wa-panel { transition: opacity 220ms var(--e-out), transform 260ms var(--e-out); }
+
+/* Carousel dots and category pills: crisp state changes */
+#store-app .collection-dots button { transition: width 200ms var(--e-out), background-color 200ms ease; }
+#store-app .pill { transition-duration: 160ms; }
+
+/* Mobile: no long-press text selection on controls */
+#store-app button, #store-app .button, #store-app .pill, #modal-root button, .whatsapp-fab { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-word, .hero-in, .toast, #modal-root .modal.is-open, .cart-button.is-bumping, .cart-button.is-bumping .cart-count { animation-name: e-fade !important; animation-duration: 160ms !important; }
+  .hero-visual--image .hero-image, .hero-chip, .hero-card[data-pos="0"], .button-shine::after { animation: none !important; }
+  .has-reveal .reveal:not(.is-visible), .has-reveal .section-heading:not(.is-visible) { transform: none; }
+}
+@keyframes e-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (hover: hover) and (pointer: fine) {
+  #store-app .product-card:hover { transform: translateY(-3px); }
+  #store-app .product-card:hover .product-image { transform: scale(1.03); }
+}
